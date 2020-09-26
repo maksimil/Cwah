@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const Login: React.FC<{}> = () => {
+const Login: Page = ({ socket, setpath }) => {
   const [name, setname] = useState("");
   const [key, setkey] = useState("");
 
@@ -24,7 +24,7 @@ const Login: React.FC<{}> = () => {
       </div>
       <button
         onClick={() => {
-          // login
+          socket.emit("login", name, key);
         }}
       >
         Login

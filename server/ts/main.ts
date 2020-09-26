@@ -16,6 +16,12 @@ app.use(express.static(path.join("build")));
 // ws
 const io = socketio(server);
 
+io.on("connect", (socket) => {
+  socket.on("login", (name: string, key: string) => {
+    console.log({ name, key });
+  });
+});
+
 // listening
 const timeout = 1000;
 const { port, lanip } = config;
