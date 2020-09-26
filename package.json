@@ -1,0 +1,46 @@
+{
+  "name": "express-react-template",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@types/node": "^12.0.0",
+    "@types/react-dom": "^16.9.8",
+    "@types/socket.io": "^2.1.11",
+    "@types/socket.io-client": "^1.4.33",
+    "express": "^4.17.1",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-scripts": "3.4.3",
+    "socket.io": "^2.3.0",
+    "socket.io-client": "^2.3.0",
+    "typescript": "~3.7.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.7",
+    "@types/react": "^16.9.46",
+    "nodemon": "^2.0.4"
+  },
+  "scripts": {
+    "start-client": "react-scripts start",
+    "build": "react-scripts build",
+    "eject": "react-scripts eject",
+    "tsc-server": "cd server && tsc",
+    "tsc-server-watch": "cd server && tsc --watch",
+    "start": "yarn build && yarn tsc-server && nodemon server/js/main.js"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
