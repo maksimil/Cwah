@@ -43,7 +43,11 @@ const update = (roomcode: string) => {
 
   // sending update info to everyone in the room
   playerids.forEach((id) => {
-    players[id].socket.emit("update", { roomcode, playernames });
+    players[id].socket.emit("update", {
+      roomcode,
+      playernames,
+      gamestate: room.gamestate,
+    } as UserData);
   });
 };
 
@@ -67,13 +71,27 @@ io.on("connect", (socket) => {
     // room creation
     let code = createcode();
     while (rooms[code]) code = createcode();
-    rooms[code] = { playerids: {}, code: code };
+    rooms[code] = { playerids: {}, code: code, gamestate: undefined };
 
     // login
     login(socket, code, name);
 
     // send data to user
     update(code);
+  });
+
+  // starting the game
+  socket.on("start", () => {
+    // get room code
+    const roomcode = players[id].roomid;
+
+    // start the game in room
+    rooms[roomcode].gamestate = { running: true };
+
+    console.log(`started in ${roomcode}`);
+
+    // inform user
+    update(roomcode);
   });
 
   // disconnecting ws

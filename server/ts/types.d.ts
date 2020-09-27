@@ -15,6 +15,7 @@ type Player = {
 type Players = smap<Player>;
 
 type Room = {
+  gamestate: GameState | undefined;
   playerids: ulist;
   code: string;
 };
@@ -26,7 +27,10 @@ type Data = {
   rooms: smap<Room>;
 };
 
+type GameState = {};
+
 type UserData = {
+  gamestate: GameState | undefined;
   playernames: string[];
   roomcode: string;
 };
