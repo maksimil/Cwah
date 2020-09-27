@@ -31,6 +31,22 @@ const codebase = 10000;
 const createcode = () =>
   (Math.floor(Math.random() * codebase) + codebase).toString().substring(1);
 
+// undate function
+const update = (roomcode: string) => {
+  // get room
+  const room = rooms[roomcode];
+
+  // getting player ids
+  const playerids = Object.keys(room.playerids);
+  // getting their names by ids
+  const playernames = playerids.map((id) => players[id].name);
+
+  // sending update info to everyone in the room
+  playerids.forEach((id) => {
+    players[id].socket.emit("update", { roomcode, playernames });
+  });
+};
+
 io.on("connect", (socket) => {
   const id = socket.id;
 
@@ -41,6 +57,9 @@ io.on("connect", (socket) => {
 
     // login
     login(socket, code, name);
+
+    // send data to user
+    update(code);
   });
 
   // create new room
@@ -48,10 +67,13 @@ io.on("connect", (socket) => {
     // room creation
     let code = createcode();
     while (rooms[code]) code = createcode();
-    rooms[code] = { playerids: {}, id: code };
+    rooms[code] = { playerids: {}, code: code };
 
     // login
     login(socket, code, name);
+
+    // send data to user
+    update(code);
   });
 
   // disconnecting ws
@@ -68,6 +90,8 @@ io.on("connect", (socket) => {
 
     // removing the room if its empty
     if (Object.keys(rooms[roomid].playerids).length === 0) delete rooms[roomid];
+    // updating the room otherwise
+    else update(roomid);
   });
 });
 

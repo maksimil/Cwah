@@ -1,18 +1,18 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import Login from "./pages/Login";
+import Main from "./pages/Main";
 import socketio from "socket.io-client";
 
 const socket = socketio("http://192.168.1.105:5000");
 
-const routes: { [key: string]: Page } = {
-  "/": Login,
-};
-
 const App: React.FC<{}> = () => {
-  const [path, setpath] = useState("/");
+  const [userdata, setuserdata] = useState<UserData | undefined>(undefined);
 
-  return routes[path]({ socket, setpath }) || <div>404</div>;
+  socket.on("update", setuserdata);
+
+  if (userdata) return <Main userdata={userdata} />;
+  else return <Login socket={socket} />;
 };
 
 ReactDOM.render(

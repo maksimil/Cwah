@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const Login: Page = ({ socket, setpath }) => {
+const Login: React.FC<{ socket: SocketIOClient.Socket }> = ({ socket }) => {
   const [name, setname] = useState("");
   const [key, setkey] = useState("");
 

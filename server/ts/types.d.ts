@@ -9,14 +9,14 @@ type ulist = { [key: string]: {} };
 type Player = {
   name: string;
   socket: SocketIO.Socket;
-  roomid: RoomId;
+  roomid: string;
 };
 
 type Players = smap<Player>;
 
 type Room = {
   playerids: ulist;
-  id: RoomId;
+  code: string;
 };
 
 type Rooms = smap<Room>;
@@ -24,4 +24,9 @@ type Rooms = smap<Room>;
 type Data = {
   players: smap<Player>;
   rooms: smap<Room>;
+};
+
+type UserData = {
+  playernames: string[];
+  roomcode: string;
 };
