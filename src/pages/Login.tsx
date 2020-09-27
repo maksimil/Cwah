@@ -31,7 +31,7 @@ const Login: Page = ({ socket, setpath }) => {
       </button>
       <button
         onClick={() => {
-          // create room
+          socket.emit("create", name);
         }}
       >
         Create room
