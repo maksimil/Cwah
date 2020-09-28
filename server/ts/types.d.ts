@@ -4,7 +4,6 @@ declare module "*.json" {
 }
 
 type smap<T> = { [key: string]: T };
-type ulist = { [key: string]: {} };
 
 type Player = {
   name: string;
@@ -16,7 +15,7 @@ type Players = smap<Player>;
 
 type Room = {
   gamestate: GameState | undefined;
-  playerids: ulist;
+  playerids: string[];
   code: string;
 };
 

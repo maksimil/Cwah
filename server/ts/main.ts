@@ -22,7 +22,7 @@ let players: smap<Player> = {};
 
 // login the player to server
 const login = (socket: socketio.Socket, code: string, name: string) => {
-  rooms[code].playerids[socket.id] = {};
+  rooms[code].playerids.push(socket.id);
   players[socket.id] = { name, socket, roomid: code };
 };
 
@@ -71,7 +71,7 @@ io.on("connect", (socket) => {
     // room creation
     let code = createcode();
     while (rooms[code]) code = createcode();
-    rooms[code] = { playerids: {}, code: code, gamestate: undefined };
+    rooms[code] = { playerids: [], code: code, gamestate: undefined };
 
     // login
     login(socket, code, name);
@@ -104,7 +104,9 @@ io.on("connect", (socket) => {
 
     // removing the player and its id from room
     delete players[id];
-    delete rooms[roomid].playerids[id];
+    rooms[roomid].playerids = rooms[roomid].playerids.filter(
+      (pid) => pid !== id
+    );
 
     // removing the room if its empty
     if (Object.keys(rooms[roomid].playerids).length === 0) delete rooms[roomid];
