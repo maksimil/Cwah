@@ -22,8 +22,10 @@ let players: smap<Player> = {};
 
 // login the player to server
 const login = (socket: socketio.Socket, code: string, name: string) => {
+  if (!rooms[code]) return false;
   rooms[code].playerids.push(socket.id);
   players[socket.id] = { name, socket, roomid: code };
+  return true;
 };
 
 // creating the 4-digit room codes
@@ -36,13 +38,11 @@ const update = (roomcode: string) => {
   // get room
   const room = rooms[roomcode];
 
-  // getting player ids
-  const playerids = Object.keys(room.playerids);
   // getting their names by ids
-  const playernames = playerids.map((id) => players[id].name);
+  const playernames = room.playerids.map((id) => players[id].name);
 
   // sending update info to everyone in the room
-  playerids.forEach((id) => {
+  room.playerids.forEach((id) => {
     players[id].socket.emit("update", {
       roomcode,
       playernames,
@@ -60,10 +60,9 @@ io.on("connect", (socket) => {
     if (!rooms[code]) return;
 
     // login
-    login(socket, code, name);
-
-    // send data to user
-    update(code);
+    if (login(socket, code, name))
+      // send data
+      update(code);
   });
 
   // create new room
@@ -71,7 +70,7 @@ io.on("connect", (socket) => {
     // room creation
     let code = createcode();
     while (rooms[code]) code = createcode();
-    rooms[code] = { playerids: [], code: code, gamestate: undefined };
+    rooms[code] = { playerids: [], code, gamestate: undefined };
 
     // login
     login(socket, code, name);
@@ -86,9 +85,11 @@ io.on("connect", (socket) => {
     const roomcode = players[id].roomid;
 
     // start the game in room
-    rooms[roomcode].gamestate = { running: true };
-
-    console.log(`started in ${roomcode}`);
+    rooms[roomcode].gamestate = {
+      phase: "choosing",
+      kingindex: 0,
+      kingcard: "king ... card",
+    };
 
     // inform user
     update(roomcode);
