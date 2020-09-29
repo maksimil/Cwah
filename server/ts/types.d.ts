@@ -37,13 +37,13 @@ type GameState =
       kingindex: number;
       kingcard: string;
       hands: smap<string[]>;
-      choices: smap<string>;
+      choices: smap<string | undefined>;
     }
   | {
       phase: "rating";
       kingindex: number;
       kingcard: string;
-      choices: smap<string>;
+      choices: smap<string | undefined>;
     };
 
 type GameUserData =
@@ -71,7 +71,7 @@ type GameUserData =
   | {
       phase: "rating";
       role: "king" | "pawn";
-      cards: smap<string>;
+      cards: smap<string | undefined>;
     };
 
 type UserData = {

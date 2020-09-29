@@ -4,6 +4,7 @@ import http from "http";
 import config from "../config.json";
 import socketio from "socket.io";
 import { newblack } from "./cards";
+import { nextphase } from "./game";
 
 // create app
 const app = express();
@@ -99,6 +100,22 @@ const update = (roomcode: string) => {
   });
 };
 
+// transitions to next phase if everyone chose their cards
+const checknextphase = (
+  gs: {
+    phase: "matching";
+    kingindex: number;
+    kingcard: string;
+    hands: smap<string[]>;
+    choices: smap<string | undefined>;
+  },
+  room: Room
+) => {
+  if (Object.keys(gs.choices).length === room.playerids.length - 1) {
+    nextphase(gs);
+  }
+};
+
 io.on("connect", (socket) => {
   const id = socket.id;
 
@@ -143,6 +160,69 @@ io.on("connect", (socket) => {
     console.log(`start in ${roomcode}`);
 
     // inform user
+    update(roomcode);
+  });
+
+  // game events
+  // custom card command
+  socket.on("custom", (card: string) => {
+    const roomcode = players[id].roomid;
+    const room = rooms[roomcode];
+    const gs = room.gamestate;
+    switch (gs?.phase) {
+      case "choosing":
+        gs.kingcard = card;
+        nextphase(gs);
+        break;
+      case "matching":
+        gs.choices[id] = card;
+        checknextphase(gs, room);
+        break;
+    }
+
+    update(roomcode);
+  });
+
+  // skip choice command
+  socket.on("skip", () => {
+    const roomcode = players[id].roomid;
+    const room = rooms[roomcode];
+    const gs = room.gamestate;
+    switch (gs?.phase) {
+      case "choosing":
+        gs.kingcard = newblack();
+        break;
+      case "matching":
+        gs.choices[id] = undefined;
+        checknextphase(gs, room);
+        break;
+    }
+
+    update(roomcode);
+  });
+
+  // choose card command
+  socket.on("choose", (...args: any[]) => {
+    const roomcode = players[id].roomid;
+    const room = rooms[roomcode];
+    const gs = room.gamestate;
+    switch (gs?.phase) {
+      case "choosing":
+        nextphase(gs);
+        break;
+      case "matching":
+        const index = args[0] as number;
+        gs.choices[id] = gs.hands[id][index];
+        checknextphase(gs, room);
+        break;
+      case "rating":
+        const pid = args[0] as string;
+        // send smth to inform that pid won
+        console.log(`${players[pid]} won in ${roomcode}`);
+        nextphase(gs);
+        break;
+    }
+
     update(roomcode);
   });
 
