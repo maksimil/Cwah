@@ -3,6 +3,7 @@ import express from "express";
 import http from "http";
 import config from "../config.json";
 import socketio from "socket.io";
+import { newblack } from "./cards";
 
 // create app
 const app = express();
@@ -43,10 +44,57 @@ const update = (roomcode: string) => {
 
   // sending update info to everyone in the room
   room.playerids.forEach((id) => {
+    let gamedata: GameUserData | undefined = undefined;
+
+    if (room.gamestate) {
+      const gs = room.gamestate;
+      const isking = room.playerids[gs.kingindex] === id;
+      switch (gs.phase) {
+        case "choosing":
+          if (isking) {
+            gamedata = {
+              phase: "choosing",
+              role: "king",
+              card: gs.kingcard,
+            };
+          } else {
+            gamedata = {
+              phase: "choosing",
+              role: "pawn",
+            };
+          }
+          break;
+        case "matching":
+          if (isking) {
+            gamedata = {
+              phase: "matching",
+              role: "king",
+              card: gs.kingcard,
+            };
+          } else {
+            gamedata = {
+              phase: "matching",
+              role: "pawn",
+              card: gs.kingcard,
+              hand: gs.hands[id],
+              choice: gs.choices[id],
+            };
+          }
+          break;
+        case "rating":
+          gamedata = {
+            phase: "rating",
+            role: isking ? "king" : "pawn",
+            cards: gs.choices,
+          };
+          break;
+      }
+    }
+
     players[id].socket.emit("update", {
       roomcode,
       playernames,
-      gamedata: undefined,
+      gamedata,
     } as UserData);
   });
 };
@@ -85,6 +133,13 @@ io.on("connect", (socket) => {
     const roomcode = players[id].roomid;
 
     // start the game in room
+    const room = rooms[roomcode];
+    room.gamestate = {
+      phase: "choosing",
+      kingindex: 0,
+      kingcard: newblack(),
+    };
+
     console.log(`start in ${roomcode}`);
 
     // inform user

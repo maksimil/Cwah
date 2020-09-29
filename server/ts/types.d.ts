@@ -70,13 +70,8 @@ type GameUserData =
     }
   | {
       phase: "rating";
-      role: "king";
-      cards: string[];
-    }
-  | {
-      phase: "rating";
-      role: "pawn";
-      cards: string[];
+      role: "king" | "pawn";
+      cards: smap<string>;
     };
 
 type UserData = {
