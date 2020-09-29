@@ -46,7 +46,7 @@ const update = (roomcode: string) => {
     players[id].socket.emit("update", {
       roomcode,
       playernames,
-      gamestate: room.gamestate,
+      gamedata: undefined,
     } as UserData);
   });
 };
@@ -85,11 +85,7 @@ io.on("connect", (socket) => {
     const roomcode = players[id].roomid;
 
     // start the game in room
-    rooms[roomcode].gamestate = {
-      phase: "choosing",
-      kingindex: 0,
-      kingcard: "king ... card",
-    };
+    console.log(`start in ${roomcode}`);
 
     // inform user
     update(roomcode);

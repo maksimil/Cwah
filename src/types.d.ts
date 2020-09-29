@@ -1,25 +1,38 @@
-type GameState =
+type GameUserData =
   | {
       phase: "choosing";
-      kingindex: number;
-      kingcard: string;
+      role: "king";
+      card: string;
+    }
+  | {
+      phase: "choosing";
+      role: "pawn";
     }
   | {
       phase: "matching";
-      kingindex: number;
-      kingcard: string;
-      hands: smap<string[]>;
-      choices: smap<string>;
+      role: "king";
+      card: string;
+    }
+  | {
+      phase: "matching";
+      role: "pawn";
+      card: string;
+      hand: string[];
+      choice: string | undefined;
     }
   | {
       phase: "rating";
-      kingindex: number;
-      kingcard: string;
-      choices: smap<string>;
+      role: "king";
+      cards: string[];
+    }
+  | {
+      phase: "rating";
+      role: "pawn";
+      cards: string[];
     };
 
 type UserData = {
-  gamestate: GameState | undefined;
+  gamedata: GameUserData | undefined;
   playernames: string[];
   roomcode: string;
 };
