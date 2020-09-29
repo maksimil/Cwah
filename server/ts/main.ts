@@ -3,8 +3,7 @@ import express from "express";
 import http from "http";
 import config from "../config.json";
 import socketio from "socket.io";
-import { newblack } from "./cards";
-import { nextphase } from "./game";
+import { newblack, newhand } from "./cards";
 
 // create app
 const app = express();
@@ -100,6 +99,39 @@ const update = (roomcode: string) => {
   });
 };
 
+// switch game to next phase
+const nextphase = (gs: ref<GameState>, room: Room) => {
+  switch (gs.v.phase) {
+    case "choosing":
+      {
+        let phase: "matching" = "matching";
+        let hands: smap<string[]> = {};
+        let choices: smap<string | undefined> = {};
+        room.playerids.forEach((id) => {
+          hands[id] = newhand();
+          choices[id] = undefined;
+        });
+
+        gs.v = { ...gs.v, phase, hands, choices };
+      }
+      break;
+    case "matching":
+      {
+        let phase: "rating" = "rating";
+        gs.v = { ...gs.v, phase };
+        delete (gs.v as any).hands;
+      }
+      break;
+    case "rating":
+      {
+        let phase: "choosing" = "choosing";
+        gs.v = { ...gs.v, phase };
+        delete (gs.v as any).choices;
+      }
+      break;
+  }
+};
+
 // transitions to next phase if everyone chose their cards
 const checknextphase = (
   gs: {
@@ -112,7 +144,7 @@ const checknextphase = (
   room: Room
 ) => {
   if (Object.keys(gs.choices).length === room.playerids.length - 1) {
-    nextphase(gs);
+    nextphase({ v: gs }, room);
   }
 };
 
@@ -172,7 +204,7 @@ io.on("connect", (socket) => {
     switch (gs?.phase) {
       case "choosing":
         gs.kingcard = card;
-        nextphase(gs);
+        nextphase({ v: gs }, room);
         break;
       case "matching":
         gs.choices[id] = card;
@@ -208,7 +240,7 @@ io.on("connect", (socket) => {
     const gs = room.gamestate;
     switch (gs?.phase) {
       case "choosing":
-        nextphase(gs);
+        nextphase({ v: gs }, room);
         break;
       case "matching":
         const index = args[0] as number;
@@ -219,7 +251,7 @@ io.on("connect", (socket) => {
         const pid = args[0] as string;
         // send smth to inform that pid won
         console.log(`${players[pid]} won in ${roomcode}`);
-        nextphase(gs);
+        nextphase({ v: gs }, room);
         break;
     }
 

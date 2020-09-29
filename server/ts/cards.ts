@@ -5,3 +5,11 @@ export const newblack = () => {
 export const newwhite = () => {
   return "white card";
 };
+
+export const newhand = (length: number = 6) => {
+  let hand = [];
+  for (let i = 0; i < length; i++) {
+    hand.push(newwhite());
+  }
+  return hand;
+};

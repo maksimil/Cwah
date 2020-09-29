@@ -5,6 +5,10 @@ declare module "*.json" {
 
 type smap<T> = { [key: string]: T };
 
+type ref<T> = {
+  v: T;
+};
+
 type Player = {
   name: string;
   socket: SocketIO.Socket;

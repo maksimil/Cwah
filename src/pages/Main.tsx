@@ -6,7 +6,7 @@ const Main: React.FC<{ userdata: UserData; socket: SocketIOClient.Socket }> = ({
   userdata,
   socket,
 }) => {
-  return userdata.gamestate ? (
+  return userdata.gamedata ? (
     <Game socket={socket} userdata={userdata} />
   ) : (
     <Lobby socket={socket} userdata={userdata} />
